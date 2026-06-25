@@ -127,8 +127,8 @@ public final class LmsWebServiceClient: Sendable {
             request: request,
             wsFunction: "webservice/upload.php",
             parameters: parameters,
-            responseType: [AssignmentUploadedDraftFile].self
-        )
+            responseType: AssignmentUploadedDraftFilesResponse.self
+        ).files
     }
 
     public func downloadAssignmentSubmissionFile(
@@ -179,10 +179,10 @@ public final class LmsWebServiceClient: Sendable {
             wsFunction: "mod_assign_save_submission",
             method: .post,
             parameters: parameters,
-            responseType: [AssignmentWarning].self
+            responseType: AssignmentWarningListResponse.self
         )
 
-        try throwFirstAssignmentWarning(in: warnings)
+        try throwFirstAssignmentWarning(in: warnings.warnings)
     }
 
     public func saveAssignmentFileSubmission(assignmentID: Int, draftItemID: Int) async throws {
@@ -206,10 +206,10 @@ public final class LmsWebServiceClient: Sendable {
                     value: acceptsSubmissionStatement ? "1" : "0"
                 ),
             ],
-            responseType: [AssignmentWarning].self
+            responseType: AssignmentWarningListResponse.self
         )
 
-        try throwFirstAssignmentWarning(in: warnings)
+        try throwFirstAssignmentWarning(in: warnings.warnings)
     }
 
     @discardableResult

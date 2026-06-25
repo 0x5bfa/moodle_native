@@ -5,6 +5,7 @@ import Security
 enum LmsAuthenticationError: LocalizedError {
     case invalidLaunchURL
     case unableToStartAuthentication
+    case canceledLogin
     case callbackParsing(LmsAuthenticationCallbackError)
     case invalidStoredSession
     case keychain(OSStatus)
@@ -15,6 +16,8 @@ enum LmsAuthenticationError: LocalizedError {
             String(localized: "lmsAuthentication.error.invalidLaunchURL")
         case .unableToStartAuthentication:
             String(localized: "lmsAuthentication.error.unableToStart")
+        case .canceledLogin:
+            nil
         case .callbackParsing(let error):
             error.errorDescription
         case .invalidStoredSession:

@@ -32,10 +32,10 @@ extension LmsWebServiceClient {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             fileName = try container.decodeIfPresent(String.self, forKey: .fileName)
             filePath = try container.decodeIfPresent(String.self, forKey: .filePath)
-            fileSize = try container.decodeIfPresent(Int.self, forKey: .fileSize)
+            fileSize = try container.decodeIntishIfPresent(forKey: .fileSize)
             fileURL = try container.decodeIfPresent(String.self, forKey: .fileURL)
             mimeType = try container.decodeIfPresent(String.self, forKey: .mimeType)
-            timeModified = try container.decodeIfPresent(Int.self, forKey: .timeModified)
+            timeModified = try container.decodeIntishIfPresent(forKey: .timeModified)
             isExternalFile = try container.decodeBoolishIfPresent(forKey: .isExternalFile) ?? false
             repositoryType = try container.decodeIfPresent(String.self, forKey: .repositoryType)
         }
@@ -147,16 +147,16 @@ extension LmsWebServiceClient {
 
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            id = try container.decode(Int.self, forKey: .id)
-            userID = try container.decodeIfPresent(Int.self, forKey: .userID) ?? 0
-            attemptNumber = try container.decodeIfPresent(Int.self, forKey: .attemptNumber) ?? 0
-            timeCreated = try container.decodeIfPresent(Int.self, forKey: .timeCreated) ?? 0
-            timeModified = try container.decodeIfPresent(Int.self, forKey: .timeModified) ?? 0
-            timeStarted = try container.decodeIfPresent(Int.self, forKey: .timeStarted)
+            id = try container.decodeIntish(forKey: .id)
+            userID = try container.decodeIntish(forKey: .userID)
+            attemptNumber = try container.decodeIntish(forKey: .attemptNumber)
+            timeCreated = try container.decodeIntish(forKey: .timeCreated)
+            timeModified = try container.decodeIntish(forKey: .timeModified)
+            timeStarted = try container.decodeIntishIfPresent(forKey: .timeStarted)
             status = try container.decodeIfPresent(String.self, forKey: .status) ?? ""
-            groupID = try container.decodeIfPresent(Int.self, forKey: .groupID) ?? 0
-            assignmentID = try container.decodeIfPresent(Int.self, forKey: .assignmentID)
-            latest = try container.decodeIfPresent(Int.self, forKey: .latest)
+            groupID = try container.decodeIntish(forKey: .groupID)
+            assignmentID = try container.decodeIntishIfPresent(forKey: .assignmentID)
+            latest = try container.decodeIntishIfPresent(forKey: .latest)
             plugins = try container.decodeIfPresent([AssignmentPlugin].self, forKey: .plugins) ?? []
             gradingStatus = try container.decodeIfPresent(String.self, forKey: .gradingStatus)
         }

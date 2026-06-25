@@ -13,7 +13,7 @@
 		84A0D9A72E4F000100000001 /* MoodleNativeNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 84A0D9A62E4F000100000001 /* MoodleNativeNetworking */; };
 		84A0D9A92E4F000100000001 /* MoodleNativeFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = 84A0D9A82E4F000100000001 /* MoodleNativeFeatures */; };
 		84A0D9AB2E4F000100000001 /* MoodleNativeFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = 84A0D9AA2E4F000100000001 /* MoodleNativeFeatures */; };
-		84B100002F8700010000000C /* MoodleNativeWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 84B100002F87000100000001 /* MoodleNativeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		84B100002F8700010000000C /* MoodleNativeWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 84B100002F87000100000001 /* MoodleNativeWidgetExtension.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -380,6 +380,9 @@
 		};
 		84B100002F8700010000000E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilters = (
+				ios,
+			);
 			target = 84B100002F87000100000007 /* MoodleNativeWidgetExtension */;
 			targetProxy = 84B100002F8700010000000D /* PBXContainerItemProxy */;
 		};
@@ -516,6 +519,7 @@
 				DEVELOPMENT_TEAM = BQ549QJ454;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoodleNative/MoodleNative-Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Moodle Native";
 				INFOPLIST_KEY_CFBundleURLTypes_0_CFBundleTypeRole = Editor;
 				INFOPLIST_KEY_CFBundleURLTypes_0_CFBundleURLName = dev.example.MoodleNative.moodle;
@@ -533,10 +537,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.example.MoodleNative;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -557,6 +563,7 @@
 				DEVELOPMENT_TEAM = BQ549QJ454;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MoodleNative/MoodleNative-Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Moodle Native";
 				INFOPLIST_KEY_CFBundleURLTypes_0_CFBundleTypeRole = Editor;
 				INFOPLIST_KEY_CFBundleURLTypes_0_CFBundleURLName = dev.example.MoodleNative.moodle;
@@ -574,10 +581,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.example.MoodleNative;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -689,6 +698,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.example.MoodleNative.MoodleNativeWidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
@@ -717,6 +727,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = dev.example.MoodleNative.MoodleNativeWidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;

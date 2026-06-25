@@ -2,7 +2,9 @@ import Foundation
 import MoodleNativeCore
 import MoodleNativeFeatures
 import MoodleNativeNetworking
+#if !targetEnvironment(macCatalyst)
 import WidgetKit
+#endif
 
 final class TimetableCacheStore {
     static let defaultAutomaticRefreshInterval: TimeInterval = 60 * 60 * 6
@@ -95,11 +97,13 @@ final class TimetableCacheStore {
         if let widgetStore {
             let widgetSnapshot = makeWidgetSnapshot(summaries: summaries, lastUpdatedAt: lastUpdatedAt)
             try? widgetStore.save(widgetSnapshot)
+#if !targetEnvironment(macCatalyst)
             WidgetCenter.shared.reloadTimelines(ofKind: MoodleNativeWidgetConstants.nextClassKind)
 
             Task { @MainActor in
                 await NextClassLiveActivityManager.shared.sync(with: widgetSnapshot)
             }
+#endif
         }
     }
 
@@ -138,11 +142,13 @@ final class TimetableCacheStore {
         try fileManager.removeItem(at: fileURL)
         if let widgetStore {
             try? widgetStore.delete()
+#if !targetEnvironment(macCatalyst)
             WidgetCenter.shared.reloadTimelines(ofKind: MoodleNativeWidgetConstants.nextClassKind)
 
             Task { @MainActor in
                 await NextClassLiveActivityManager.shared.endAll()
             }
+#endif
         }
     }
 

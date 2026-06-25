@@ -120,7 +120,7 @@ struct TimetableTabView: View {
                 }
             }
             .navigationTitle(timetableNavigationTitle)
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .adaptiveNavigationTitleDisplayMode()
             .toolbar {
                 ToolbarItem {
                     Button {

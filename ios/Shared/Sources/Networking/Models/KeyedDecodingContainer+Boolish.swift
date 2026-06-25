@@ -24,6 +24,38 @@ extension KeyedDecodingContainer {
         return nil
     }
 
+    func decodeIntishIfPresent(forKey key: Key) throws -> Int? {
+        guard contains(key) else {
+            return nil
+        }
+
+        if try decodeNil(forKey: key) {
+            return nil
+        }
+
+        if let value = try? decode(Int.self, forKey: key) {
+            return value
+        }
+
+        if let value = try? decode(String.self, forKey: key) {
+            return Int(value.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+
+        if let value = try? decode(Double.self, forKey: key) {
+            return Int(value)
+        }
+
+        if let value = try? decode(Bool.self, forKey: key) {
+            return value ? 1 : 0
+        }
+
+        return nil
+    }
+
+    func decodeIntish(forKey key: Key, defaultValue: Int = 0) throws -> Int {
+        try decodeIntishIfPresent(forKey: key) ?? defaultValue
+    }
+
     func decodeStringishIfPresent(forKey key: Key) throws -> String? {
         if try decodeNil(forKey: key) {
             return nil

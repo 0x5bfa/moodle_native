@@ -33,6 +33,56 @@ extension LmsWebServiceClient {
             case filePath = "filepath"
             case fileSize = "filesize"
         }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            component = try container.decodeIfPresent(String.self, forKey: .component) ?? ""
+            contextID = try container.decodeIntish(forKey: .contextID)
+            userID = try container.decodeIntish(forKey: .userID)
+            fileArea = try container.decodeIfPresent(String.self, forKey: .fileArea) ?? ""
+            itemID = try container.decodeIntish(forKey: .itemID)
+            fileName = try container.decodeIfPresent(String.self, forKey: .fileName) ?? ""
+            filePath = try container.decodeIfPresent(String.self, forKey: .filePath) ?? "/"
+            fileSize = try container.decodeIntishIfPresent(forKey: .fileSize)
+        }
+    }
+
+    struct AssignmentUploadedDraftFilesResponse: Decodable, Sendable {
+        let files: [AssignmentUploadedDraftFile]
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if container.decodeNil() {
+                files = []
+                return
+            }
+
+            if let files = try? container.decode([AssignmentUploadedDraftFile].self) {
+                self.files = files
+                return
+            }
+
+            if let file = try? container.decode(AssignmentUploadedDraftFile.self) {
+                files = [file]
+                return
+            }
+
+            files = []
+        }
+    }
+
+    struct AssignmentWarningListResponse: Decodable, Sendable {
+        let warnings: [AssignmentWarning]
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if container.decodeNil() {
+                warnings = []
+                return
+            }
+
+            warnings = (try? container.decode([AssignmentWarning].self)) ?? []
+        }
     }
 
     public struct AssignmentOnlineTextInput: Equatable, Sendable {
@@ -55,10 +105,27 @@ extension LmsWebServiceClient {
             case submissionID = "submissionid"
             case warnings
         }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            submissionID = try container.decodeIntish(forKey: .submissionID)
+            warnings = try container.decodeIfPresent([AssignmentWarning].self, forKey: .warnings) ?? []
+        }
     }
 
     public struct AssignmentSubmissionRemovalResponse: Decodable, Equatable, Sendable {
         public let status: Bool
         public let warnings: [AssignmentWarning]
+
+        private enum CodingKeys: String, CodingKey {
+            case status
+            case warnings
+        }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            status = try container.decodeBoolishIfPresent(forKey: .status) ?? false
+            warnings = try container.decodeIfPresent([AssignmentWarning].self, forKey: .warnings) ?? []
+        }
     }
 }

@@ -119,6 +119,42 @@ private struct MoodleLoginStepView: View {
     var body: some View {
         Group {
             if lmsAuthenticationViewModel.isAuthenticating {
+                #if targetEnvironment(macCatalyst)
+                if let launchURL = lmsAuthenticationViewModel.macAuthenticationLaunchURL {
+                    VStack(spacing: 12) {
+                        LmsMoodleAuthenticationWebView(
+                            launchURL: launchURL,
+                            siteHost: AppSettings.MoodleSite.resolvedURL().host ?? "moodle.example.edu",
+                            retryTrigger: lmsAuthenticationViewModel.macAuthenticationRetryCount,
+                            onCallback: { rawCallbackURLString in
+                                lmsAuthenticationViewModel.handleAuthenticationCallback(rawCallbackURLString)
+                            }
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        VStack(spacing: 8) {
+                            Text("loginOnboarding.loggingIn")
+                                .font(.footnote.weight(.medium))
+                                .foregroundStyle(.secondary)
+
+                            Button("アプリに戻る") {
+                                lmsAuthenticationViewModel.retryMacAuthenticationExtraction()
+                            }
+                            .font(.footnote)
+                        }
+                    }
+                } else {
+                    VStack(spacing: 12) {
+                        ProgressView()
+                            .controlSize(.large)
+
+                        Text("loginOnboarding.loggingIn")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                #else
                 VStack(spacing: 12) {
                     ProgressView()
                         .controlSize(.large)
@@ -128,6 +164,7 @@ private struct MoodleLoginStepView: View {
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #endif
             } else {
                 OnboardingSheetPage(bottomBar: {
                     if lmsAuthenticationViewModel.isLoggedIn {

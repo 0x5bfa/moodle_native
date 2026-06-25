@@ -9,6 +9,8 @@ final class LmsAuthenticationViewModel {
     private(set) var isAuthenticating = false
     private(set) var session: LmsAuthenticationSession?
     private(set) var errorMessage: String?
+    private(set) var macAuthenticationLaunchURL: URL?
+    private(set) var macAuthenticationRetryCount = 0
 
     private let authenticationService: LmsMobileAuthenticationService
     private let store: LmsAuthenticationStore
@@ -90,13 +92,35 @@ final class LmsAuthenticationViewModel {
         }
     }
 
+    func handleAuthenticationCallback(_ rawCallbackURLString: String) {
+        do {
+            try authenticationService.deliverCallbackURLString(rawCallbackURLString)
+        } catch {
+            guard Self.isCanceledAuthentication(error) == false else {
+                return
+            }
+
+            errorMessage = Self.message(for: error)
+        }
+    }
+
+    func retryMacAuthenticationExtraction() {
+        macAuthenticationRetryCount += 1
+    }
+
     private func authenticate() async {
         isAuthenticating = true
         defer {
             isAuthenticating = false
+            macAuthenticationLaunchURL = nil
         }
 
         do {
+            #if targetEnvironment(macCatalyst)
+            macAuthenticationLaunchURL = try authenticationService.makeLaunchURL()
+            await Task.yield()
+            #endif
+
             let authenticatedSession = try await authenticationService.authenticate()
             session = authenticatedSession
             errorMessage = nil
@@ -116,6 +140,10 @@ final class LmsAuthenticationViewModel {
     }
 
     private static func isCanceledAuthentication(_ error: Error) -> Bool {
+        if case LmsAuthenticationError.canceledLogin = error {
+            return true
+        }
+
         let nsError = error as NSError
         return nsError.domain == ASWebAuthenticationSessionError.errorDomain
             && nsError.code == ASWebAuthenticationSessionError.Code.canceledLogin.rawValue
