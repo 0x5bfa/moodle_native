@@ -1608,6 +1608,153 @@ struct LmsWebServiceClientTests {
         #expect(started.submissionID == 830437)
     }
 
+
+    @Test func assignmentNonDraftSubmissionUsesSaveSubmissionOnly() async throws {
+        let session = LmsAuthenticationSession(
+            siteURL: "https://lms.example.test",
+            token: "ws-token-123",
+            privateToken: nil,
+            rawCallbackURL: "moodleapp://example?token=ws-token-123",
+            authenticatedAt: Date(timeIntervalSince1970: 1_744_506_000)
+        )
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+        let urlSession = URLSession(configuration: configuration)
+
+        MockURLProtocol.requestHandler = { request in
+            let parameters = try formParameters(for: request)
+            #expect(parameters["wstoken"] == "ws-token-123")
+            #expect(parameters["assignmentid"] == "27625")
+            #expect(parameters["wsfunction"] == "mod_assign_save_submission")
+            #expect(parameters["plugindata[files_filemanager]"] == "123456")
+
+            let url = try #require(request.url)
+            let response = try #require(
+                HTTPURLResponse(
+                    url: url,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "application/json"]
+                )
+            )
+            return (response, Data("[]".utf8))
+        }
+        defer {
+            MockURLProtocol.requestHandler = nil
+            urlSession.invalidateAndCancel()
+        }
+
+        let client = LmsWebServiceClient(session: session, urlSession: urlSession)
+        try await client.saveAssignmentSubmission(
+            assignmentID: 27625,
+            fileDraftItemID: 123456
+        )
+
+    }
+
+    @Test func assignmentSubmissionSaveAcceptsNullWarningsResponse() async throws {
+        let session = LmsAuthenticationSession(
+            siteURL: "https://lms.example.test",
+            token: "ws-token-123",
+            privateToken: nil,
+            rawCallbackURL: "moodleapp://example?token=ws-token-123",
+            authenticatedAt: Date(timeIntervalSince1970: 1_744_506_000)
+        )
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+        let urlSession = URLSession(configuration: configuration)
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try #require(request.url)
+            let response = try #require(
+                HTTPURLResponse(
+                    url: url,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "application/json"]
+                )
+            )
+            return (response, Data("null".utf8))
+        }
+        defer {
+            MockURLProtocol.requestHandler = nil
+            urlSession.invalidateAndCancel()
+        }
+
+        let client = LmsWebServiceClient(session: session, urlSession: urlSession)
+        try await client.saveAssignmentSubmission(assignmentID: 27625, fileDraftItemID: 123456)
+        try await client.submitAssignmentForGrading(assignmentID: 27625)
+    }
+
+    @Test func uploadAssignmentSubmissionFilesAcceptsSingleObjectResponse() async throws {
+        let session = LmsAuthenticationSession(
+            siteURL: "https://lms.example.test",
+            token: "ws-token-123",
+            privateToken: nil,
+            rawCallbackURL: "moodleapp://example?token=ws-token-123",
+            authenticatedAt: Date(timeIntervalSince1970: 1_744_506_000)
+        )
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+        let urlSession = URLSession(configuration: configuration)
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try #require(request.url)
+            let response = try #require(
+                HTTPURLResponse(
+                    url: url,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "application/json"]
+                )
+            )
+            let responseData = Data(
+                """
+                {
+                  "component": "user",
+                  "contextid": "9",
+                  "userid": "99",
+                  "filearea": "draft",
+                  "itemid": "123456",
+                  "filename": "report.pdf",
+                  "filepath": "/",
+                  "filesize": "12"
+                }
+                """.utf8
+            )
+            return (response, responseData)
+        }
+        defer {
+            MockURLProtocol.requestHandler = nil
+            urlSession.invalidateAndCancel()
+        }
+
+        let client = LmsWebServiceClient(session: session, urlSession: urlSession)
+        let uploadedFiles = try await client.uploadAssignmentSubmissionFiles([
+            .init(fileName: "report.pdf", mimeType: "application/pdf", data: Data("file-content".utf8))
+        ])
+
+        #expect(uploadedFiles.first?.itemID == 123456)
+    }
+
+    @Test func assignmentSubmissionStartAcceptsStringSubmissionID() throws {
+        let data = Data(
+            """
+            {
+              "submissionid": "830437",
+              "warnings": []
+            }
+            """.utf8
+        )
+
+        let response = try JSONDecoder().decode(
+            LmsWebServiceClient.AssignmentSubmissionStartResponse.self,
+            from: data
+        )
+
+        #expect(response.submissionID == 830437)
+    }
+
     @Test func requestLoggerCapturesMultipleResponsesWithContext() async throws {
         let session = LmsAuthenticationSession(
             siteURL: "https://lms.example.test",

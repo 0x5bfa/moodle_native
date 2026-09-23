@@ -92,31 +92,17 @@ final class AssignmentDetailViewModel: LoadableObject {
         session: LmsAuthenticationSession?
     ) async -> Bool {
         await performSubmissionOperation(.saving, session: session) { client in
-            var fileDraftItemID: Int?
-            if fileContentChanged {
-                let files = try await submissionFiles.asyncMap { file in
-                    try await file.uploadFile(using: client)
-                }
-
-                if files.isEmpty {
-                    fileDraftItemID = 0
-                } else {
-                    let uploadedFiles = try await client.uploadAssignmentSubmissionFiles(files)
-                    guard let uploadedItemID = uploadedFiles.first?.itemID else {
-                        throw LmsWebServiceError.invalidResponse
-                    }
-                    fileDraftItemID = uploadedItemID
-                }
-            }
-
-            try await client.saveAssignmentSubmission(
-                assignmentID: self.assignmentID,
-                fileDraftItemID: fileDraftItemID,
+            try await self.performSaveSubmission(
+                using: client,
+                files: submissionFiles,
+                fileContentChanged: fileContentChanged,
                 onlineText: onlineText
             )
         }
     }
 
+    /// Submits a saved draft for grading. Use only when `submissionDrafts == true`.
+    /// Non-draft assignments are submitted by `saveSubmission` alone.
     func submitForGrading(
         acceptsSubmissionStatement: Bool,
         session: LmsAuthenticationSession?
@@ -203,6 +189,36 @@ final class AssignmentDetailViewModel: LoadableObject {
         submissionErrorMessage = nil
         loadedSession = nil
         hasLoaded = false
+    }
+
+    private func performSaveSubmission(
+        using client: LmsWebServiceClient,
+        files submissionFiles: [AssignmentSubmissionFileDraft],
+        fileContentChanged: Bool,
+        onlineText: LmsWebServiceClient.AssignmentOnlineTextInput?
+    ) async throws {
+        var fileDraftItemID: Int?
+        if fileContentChanged {
+            let files = try await submissionFiles.asyncMap { file in
+                try await file.uploadFile(using: client)
+            }
+
+            if files.isEmpty {
+                fileDraftItemID = 0
+            } else {
+                let uploadedFiles = try await client.uploadAssignmentSubmissionFiles(files)
+                guard let uploadedItemID = uploadedFiles.first?.itemID else {
+                    throw LmsWebServiceError.invalidResponse
+                }
+                fileDraftItemID = uploadedItemID
+            }
+        }
+
+        try await client.saveAssignmentSubmission(
+            assignmentID: assignmentID,
+            fileDraftItemID: fileDraftItemID,
+            onlineText: onlineText
+        )
     }
 
     private func performSubmissionOperation(

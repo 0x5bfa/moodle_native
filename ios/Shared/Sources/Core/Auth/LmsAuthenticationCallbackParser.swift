@@ -6,7 +6,19 @@ public enum LmsAuthenticationCallbackParser {
         fallbackSiteURL: URL,
         authenticatedAt: Date = .now
     ) throws -> LmsAuthenticationSession {
-        let rawCustomURL = trimCustomURL(callbackURL.absoluteString)
+        try parse(
+            rawCallbackURLString: callbackURL.absoluteString,
+            fallbackSiteURL: fallbackSiteURL,
+            authenticatedAt: authenticatedAt
+        )
+    }
+
+    public static func parse(
+        rawCallbackURLString: String,
+        fallbackSiteURL: URL,
+        authenticatedAt: Date = .now
+    ) throws -> LmsAuthenticationSession {
+        let rawCustomURL = trimCustomURL(rawCallbackURLString)
         guard rawCustomURL.isEmpty == false else {
             throw LmsAuthenticationCallbackError.missingCallbackURL
         }
@@ -17,6 +29,10 @@ public enum LmsAuthenticationCallbackParser {
                 fallbackSiteURL: fallbackSiteURL,
                 authenticatedAt: authenticatedAt
             )
+        }
+
+        guard let callbackURL = URL(string: rawCustomURL) else {
+            throw LmsAuthenticationCallbackError.invalidCallbackURL
         }
 
         return try parseDirect(

@@ -1,5 +1,7 @@
-import ActivityKit
 import Foundation
+#if !targetEnvironment(macCatalyst)
+import ActivityKit
+#endif
 
 @MainActor
 final class NextClassLiveActivityManager {
@@ -8,6 +10,9 @@ final class NextClassLiveActivityManager {
     private init() {}
 
     func syncFromStoredSnapshot() async {
+#if targetEnvironment(macCatalyst)
+        return
+#else
         guard AppSettings.NextClassLiveActivity.isEnabled else {
             await endAll()
             return
@@ -19,9 +24,13 @@ final class NextClassLiveActivityManager {
         }
 
         await sync(with: snapshot)
+#endif
     }
 
     func sync(with snapshot: TimetableWidgetSnapshot, now: Date = .now) async {
+#if targetEnvironment(macCatalyst)
+        return
+#else
         guard AppSettings.NextClassLiveActivity.isEnabled else {
             await endAll()
             return
@@ -63,14 +72,20 @@ final class NextClassLiveActivityManager {
         } catch {
             return
         }
+#endif
     }
 
     func endAll() async {
+#if targetEnvironment(macCatalyst)
+        return
+#else
         for activity in Activity<NextClassLiveActivityAttributes>.activities {
             await activity.end(nil, dismissalPolicy: .immediate)
         }
+#endif
     }
 
+#if !targetEnvironment(macCatalyst)
     private func makeContentState(
         for nextClass: TimetableWidgetNextClass
     ) -> NextClassLiveActivityAttributes.ContentState {
@@ -90,4 +105,5 @@ final class NextClassLiveActivityManager {
             endDate: interval?.end,
         )
     }
+#endif
 }

@@ -25,6 +25,7 @@ struct LmsAssignmentSubmissionSheet: View {
     @State private var isSelectingFiles = false
     @State private var localErrorMessage: String?
     @State private var presentationDetent: PresentationDetent = .large
+    @State private var isConfirmingFinalSubmission = false
 
     init(
         assignmentTitle: String,
@@ -152,12 +153,22 @@ struct LmsAssignmentSubmissionSheet: View {
 
                 Section {
                     Button {
-                        submitFiles()
+                        if submissionDrafts {
+                            submitFiles()
+                        } else {
+                            isConfirmingFinalSubmission = true
+                        }
                     } label: {
-                        if viewModel.submissionOperation == .saving {
+                        if let operation = viewModel.submissionOperation,
+                            operation == .saving || operation == .submitting
+                        {
                             HStack(spacing: 10) {
                                 ProgressView()
-                                Text("assignmentSubmission.saving")
+                                Text(
+                                    operation == .submitting
+                                        ? String(localized: "assignmentSubmission.submitting")
+                                        : String(localized: "assignmentSubmission.saving")
+                                )
                             }
                         } else {
                             Text(buttonTitle)
@@ -215,6 +226,18 @@ struct LmsAssignmentSubmissionSheet: View {
         }
         .presentationDetents([.medium, .large], selection: $presentationDetent)
         .presentationBackground(Color(.systemBackground))
+        .confirmationDialog(
+            String(localized: "assignmentDetail.confirmSubmit.title"),
+            isPresented: $isConfirmingFinalSubmission,
+            titleVisibility: .visible
+        ) {
+            Button("assignmentSubmission.action.submit") {
+                submitFiles()
+            }
+            Button("common.cancel", role: .cancel) {}
+        } message: {
+            Text("assignmentDetail.confirmSubmit.message")
+        }
     }
 
     private var hasChanges: Bool {
@@ -298,6 +321,8 @@ struct LmsAssignmentSubmissionSheet: View {
                 hasOnlineTextChanges
                 ? .init(text: Self.htmlText(fromPlainText: onlineText))
                 : nil
+            // Non-draft assignments are submitted by mod_assign_save_submission alone.
+            // Calling submit_for_grading afterward fails with couldnotsubmitforgrading.
             let didSave = await viewModel.saveSubmission(
                 files: submissionFiles,
                 fileContentChanged: hasFileChanges,
@@ -380,6 +405,10 @@ private struct LmsAssignmentSubmissionFileDraftRow: View {
             Button("common.delete", systemImage: "trash", action: remove)
                 .labelStyle(.iconOnly)
                 .buttonStyle(.borderless)
+                .disabled(isDisabled)
+        }
+        .contextMenu {
+            Button("common.delete", systemImage: "trash", role: .destructive, action: remove)
                 .disabled(isDisabled)
         }
     }

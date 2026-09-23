@@ -17,14 +17,22 @@ struct HomeTabView: View {
     var body: some View {
         NavigationStack {
             List {
+                #if targetEnvironment(macCatalyst)
+                homeHeaderSection
+                #endif
                 nextClassesSection
                 assignmentsSection
 
                 notificationsSection
             }
+            #if targetEnvironment(macCatalyst)
+            .navigationTitle("")
+            .toolbarTitleDisplayMode(.inline)
+            #else
             .navigationTitle(greetingTitle)
             .navigationSubtitle(dateSubtitle)
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .adaptiveNavigationTitleDisplayMode()
+            #endif
             .task(id: taskID) {
                 await loadIfNeeded()
             }
@@ -33,6 +41,26 @@ struct HomeTabView: View {
             }
         }
     }
+
+    #if targetEnvironment(macCatalyst)
+    private var homeHeaderSection: some View {
+        Section {
+            VStack(spacing: 6) {
+                Text(verbatim: homeDateLine)
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+
+                Text(greetingTitle)
+                    .font(.largeTitle.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, 8)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+        }
+    }
+    #endif
 
     private var nextClassesSection: some View {
         Section("home.nextClasses.section") {
@@ -135,6 +163,14 @@ struct HomeTabView: View {
                         }
                         .contentShape(Rectangle())
                     }
+                    .assignmentContextMenu(
+                        assignment: assignment,
+                        siteURL: session.siteURL,
+                        isHidden: assignmentsViewModel.isHidden(assignment),
+                        canHide: true,
+                        onHide: { assignmentsViewModel.hide(assignment) },
+                        onRestore: { assignmentsViewModel.show(assignment) }
+                    )
                 }
             }
         } header: {
@@ -209,8 +245,17 @@ struct HomeTabView: View {
         }
     }
 
+    private var homeDateLine: String {
+        let date = Date.now
+        let calendar = Calendar.current
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
+        let weekday = date.formatted(.dateTime.weekday(.abbreviated))
+        return "\(month)月\(day)日 (\(weekday))"
+    }
+
     private var dateSubtitle: String {
-        Date.now.formatted(.dateTime.month().day().weekday(.abbreviated))
+        homeDateLine
     }
 
     private var taskID: String {

@@ -702,6 +702,16 @@ private struct LmsAssignmentFileGroupView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            onOpenResource(url)
+                        } label: {
+                            Label("common.openInMoodle", systemImage: "safari")
+                        }
+                        ShareLink(item: url) {
+                            Label("common.share", systemImage: "square.and.arrow.up")
+                        }
+                    }
                 }
             }
         }

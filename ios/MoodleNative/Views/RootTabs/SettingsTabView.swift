@@ -11,10 +11,6 @@ struct SettingsTabView: View {
     private var isNextClassLiveActivityEnabled = AppSettings.NextClassLiveActivity.defaultValue
     @AppStorage(AppSettings.ExternalLinks.preferInAppStorageKey)
     private var prefersInAppExternalLinks = AppSettings.ExternalLinks.preferInAppDefaultValue
-    #if DEBUG
-        @AppStorage(DebugTimetableFixtureStore.selectionStorageKey)
-        private var debugTimetableFixtureID = DebugTimetableFixtureStore.noneFixtureID
-    #endif
     @State private var viewModel = SettingsViewModel()
     @State private var profileViewModel = SettingsProfileViewModel()
     @State private var timetableViewModel = TimetableViewModel(
@@ -36,7 +32,7 @@ struct SettingsTabView: View {
                 versionSection
             }
             .navigationTitle("settings.title")
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .adaptiveNavigationTitleDisplayMode()
             .alert(
                 viewModel.activeAlert?.title ?? "",
                 isPresented: $viewModel.isShowingAlert,
@@ -168,7 +164,9 @@ struct SettingsTabView: View {
             .pickerStyle(.menu)
             .disabled(lmsSession == nil || timetableViewModel.availableSemesters.isEmpty)
 
+            #if !targetEnvironment(macCatalyst)
             Toggle("settings.display.liveActivity", isOn: $isNextClassLiveActivityEnabled)
+            #endif
 
             Toggle("settings.display.openLinksInApp", isOn: $prefersInAppExternalLinks)
 
@@ -197,15 +195,6 @@ struct SettingsTabView: View {
                 }
 
                 wstokenRow
-
-                Picker("settings.debug.timetableFixture", selection: $debugTimetableFixtureID) {
-                    Text("settings.debug.timetableFixture.none").tag(DebugTimetableFixtureStore.noneFixtureID)
-
-                    ForEach(DebugTimetableFixtureStore.builtInFixtures) { fixture in
-                        Text(fixture.title).tag(fixture.id)
-                    }
-                }
-                .pickerStyle(.menu)
             }
         }
     #endif

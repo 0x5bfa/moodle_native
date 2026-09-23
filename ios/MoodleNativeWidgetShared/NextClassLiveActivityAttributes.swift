@@ -1,3 +1,4 @@
+#if !targetEnvironment(macCatalyst)
 import ActivityKit
 import Foundation
 
@@ -17,3 +18,4 @@ struct NextClassLiveActivityAttributes: ActivityAttributes {
 extension NextClassLiveActivityAttributes {
     static let nextClassActivityID = "next-class"
 }
+#endif

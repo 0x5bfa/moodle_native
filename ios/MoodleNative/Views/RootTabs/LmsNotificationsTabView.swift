@@ -90,7 +90,7 @@ struct LmsNotificationsTabView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .navigationTitle("tab.notifications")
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .adaptiveNavigationTitleDisplayMode()
             .toolbar {
                 if session != nil {
                     ToolbarItem {
