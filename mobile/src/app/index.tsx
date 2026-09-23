@@ -1,11 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import AssignmentsTabView from '@/views/root-tabs/assignments-tab-view';
 
-export default function AssignmentsScreen() {
-  return <View style={styles.container} />;
+export default function AssignmentsRoute() {
+  return <AssignmentsTabView />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
