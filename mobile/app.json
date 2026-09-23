@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Moodle Native",
+    "slug": "moodle-native",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/app-icon.png",
+    "scheme": "moodlenative",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": {
+        "light": "./assets/images/app-icon.png",
+        "dark": "./assets/images/app-icon-dark.png",
+        "tinted": "./assets/images/app-icon-tinted.png"
+      },
+      "bundleIdentifier": "dev.example.MoodleNative",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "dev.example.moodlenative",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/app-icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#208AEF"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ae3fb82e-e907-47e2-9a30-24aa32d97064"
+      }
+    },
+    "owner": "0x5bfa"
+  }
+}
